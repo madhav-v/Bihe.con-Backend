@@ -14,7 +14,7 @@ app.use(
 );
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://bihe.vercel.app/"],
+    origin: "*",
     credentials: true,
   })
 );
@@ -51,13 +51,13 @@ const serv = server.listen(3005, "localhost", (err) => {
   }
 });
 
-const io = require("socket.io")(serv, {
-  pingTimeout: 60000,
-  cors: {
-    origin: ["http://localhost:5173", "https://bihe.vercel.app/"],
-  },
-});
+// const io = require("socket.io")(serv, {
+//   pingTimeout: 60000,
+//   cors: {
+//     origin: "*",
+//   },
+// });
 
-io.on("connection", (socket) => {
-  console.log("connected to socket.io");
-});
+// io.on("connection", (socket) => {
+//   console.log("connected to socket.io");
+// });
