@@ -3,7 +3,6 @@ const express = require("express");
 const app = express();
 const routes = require("./src/routes");
 const cors = require("cors");
-const expressSession = require("express-session");
 
 require("./src/config/mongoose.config");
 
@@ -14,14 +13,7 @@ app.use(
   })
 );
 app.use(cors());
-app.use(
-  expressSession({
-    secret: "test123#",
-    resave: true,
-    saveUninitialized: true,
-    cookie: { secure: true },
-  })
-);
+
 
 app.use("/assets/", express.static(process.cwd() + "/public/"));
 app.use("/api/v1", routes);
@@ -55,13 +47,13 @@ const serv = server.listen(3005, "localhost", (err) => {
   }
 });
 
-// const io = require("socket.io")(serv, {
-//   pingTimeout: 60000,
-//   cors: {
-//     origin: "*",
-//   },
-// });
+const io = require("socket.io")(serv, {
+  pingTimeout: 60000,
+  cors: {
+    origin: ["http://localhost:5173", "https://bihe.vercel.app/"],
+  },
+});
 
-// io.on("connection", (socket) => {
-//   console.log("connected to socket.io");
-// });
+io.on("connection", (socket) => {
+  console.log("connected to socket.io");
+});
