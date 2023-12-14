@@ -12,8 +12,12 @@ app.use(
     extended: false,
   })
 );
-app.use(cors());
-
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "https://bihe.vercel.app/"],
+    credentials: true,
+  })
+);
 
 app.use("/assets/", express.static(process.cwd() + "/public/"));
 app.use("/api/v1", routes);
