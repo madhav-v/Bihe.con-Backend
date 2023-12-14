@@ -13,12 +13,7 @@ app.use(
     extended: false,
   })
 );
-app.use(
-  cors({
-    origin: "http://localhost:5173",
-    credentials: true,
-  })
-);
+app.use(cors());
 app.use(
   expressSession({
     secret: "test123#",
@@ -27,7 +22,6 @@ app.use(
     cookie: { secure: true },
   })
 );
-
 
 app.use("/assets/", express.static(process.cwd() + "/public/"));
 app.use("/api/v1", routes);
