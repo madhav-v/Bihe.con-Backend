@@ -55,13 +55,13 @@ const serv = server.listen(3005, "localhost", (err) => {
   }
 });
 
-const io = require("socket.io")(serv, {
-  pingTimeout: 60000,
-  cors: {
-    origin: "*",
-  },
-});
+// const io = require("socket.io")(serv, {
+//   pingTimeout: 60000,
+//   cors: {
+//     origin: "*",
+//   },
+// });
 
-io.on("connection", (socket) => {
-  console.log("connected to socket.io");
-});
+// io.on("connection", (socket) => {
+//   console.log("connected to socket.io");
+// });
