@@ -3,7 +3,8 @@ const express = require("express");
 const app = express();
 const routes = require("./src/routes");
 const cors = require("cors");
-
+const dotenv = require("dotenv");
+dotenv.config();
 require("./src/config/mongoose.config");
 
 app.use(express.json());
@@ -42,7 +43,7 @@ app.use((error, req, res, next) => {
   });
 });
 
-const serv = server.listen(3005, "localhost", (err) => {
+const serv = server.listen(process.env.PORT, (err) => {
   if (err) {
     console.log("Error listening to the port");
   } else {
