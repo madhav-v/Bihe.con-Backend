@@ -20,7 +20,7 @@ router
   .get(authCheck, profileCtrl.listAllProfile)
   .post(
     authCheck,
-    uploadPath,
+    // uploadPath,
     uploader.single("image"),
     profileCtrl.createProfile
   );
