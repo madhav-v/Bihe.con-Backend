@@ -238,7 +238,7 @@ class ProfileController {
 
       if (req.file?.path) {
         try {
-          cloud = await cloudinary.uploader.upload(req.file.path);
+          cloud = await cloudinary.v2.uploader.upload(req.file.path);
 
           profile.image = cloud.secure_url;
           await profile?.save();
