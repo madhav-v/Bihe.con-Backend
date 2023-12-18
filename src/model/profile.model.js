@@ -171,19 +171,7 @@ const ProfileSchema = new mongoose.Schema(
     image: {
       type: String,
     },
-    partnerMessage: {
-      type: String,
-    },
     hobbies: {
-      type: String,
-    },
-    noOfFamilyMembers: {
-      type: Number,
-    },
-    noOfSiblings: {
-      type: Number,
-    },
-    liveWithFamily: {
       type: String,
     },
   },
