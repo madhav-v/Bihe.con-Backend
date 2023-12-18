@@ -1,6 +1,8 @@
 const profileSvc = require("../services/profile.service");
 const UserModel = require("../model/user.model");
 const ProfileModel = require("../model/profile.model");
+const cloudinary = require("../config/cloudinary.config");
+const fs = require("fs");
 class ProfileController {
   createProfile = async (req, res, next) => {
     try {
@@ -229,20 +231,39 @@ class ProfileController {
       if (!user.profile) {
         throw { status: 400, msg: "User does not have a profile." };
       }
-      const data = {
-        filename: req.file.filename,
-      };
-      const profile = user.profile;
-      profile.image = data.filename;
-      await profile?.save();
-      const updatedUser = await UserModel.findById(id).populate("profile");
 
-      res.json({
-        result: updatedUser,
-        msg: "Profile Updated",
-        status: true,
-        meta: null,
-      });
+      let cloud;
+
+      const profile = user.profile;
+
+      if (req.file?.path) {
+        try {
+          cloud = await cloudinary.uploader.upload(req.file.path);
+
+          profile.image = cloud.secure_url;
+          await profile?.save();
+
+          const updatedUser = await UserModel.findById(id).populate("profile");
+
+          fs.unlink(req.file.path, (err) => {
+            if (err) {
+              console.error(err);
+            }
+          });
+
+          res.json({
+            result: updatedUser,
+            msg: "Profile Updated",
+            status: true,
+            meta: null,
+          });
+        } catch (error) {
+          console.error(error);
+          next(error);
+        }
+      } else {
+        next({ status: 400, msg: "Please provide the Profile Image" });
+      }
     } catch (exception) {
       next(exception);
     }
