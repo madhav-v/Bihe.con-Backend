@@ -2,12 +2,19 @@ const router = require("express").Router();
 const authCheck = require("../middleware/auth.middleware");
 const uploader = require("../middleware/uploader.middleware");
 const profileCtrl = require("../controllers/profile.controller");
-
+const fs = require("fs")
+// const uploadPath = (req, res, next) => {
+//   req.uploadPath = "./public/profile/";
+//   next();
+// };
 const uploadPath = (req, res, next) => {
-  req.uploadPath = "./public/profile/";
+  const path = "./public/profile/";
+  if (!fs.existsSync(path)) {
+    fs.mkdirSync(path, { recursive: true });
+  }
+  req.uploadPath = path;
   next();
 };
-
 router
   .route("/")
   .get(authCheck, profileCtrl.listAllProfile)
