@@ -233,13 +233,11 @@ class ProfileController {
       }
 
       let cloud;
-
       const profile = user.profile;
 
       if (req.file?.path) {
         try {
-          cloud = await cloudinary.v2.uploader.upload(req.file.path);
-
+          cloud = await cloudinary.v2.uploader.upload(req.file?.path);
           profile.image = cloud.secure_url;
           await profile?.save();
 

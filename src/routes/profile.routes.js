@@ -37,7 +37,7 @@ router.post("/partnerMessage", authCheck, profileCtrl.partnerMessage);
 router.post(
   "/photo",
   authCheck,
-  // uploadPath,
+  uploadPath,
   uploader.single("image"),
   profileCtrl.addPhoto
 );

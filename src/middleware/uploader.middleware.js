@@ -1,17 +1,13 @@
 const multer = require("multer");
 const fs = require("fs");
-const path = require("path");
 
 const myStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    let path1 =
-      req.uploadPath ?? path.resolve(__dirname, "../../public/profile/");
-    if (!fs.existsSync(path1)) {
-      fs.mkdirSync(path1, { recursive: true });
+    let path = req.uploadPath ?? "./public/";
+    if (!fs.existsSync(path)) {
+      fs.mkdirSync(path, { recursive: true });
     }
-    console.log(path1);
-
-    cb(null, path1);
+    cb(null, path);
   },
   filename: (req, file, cb) => {
     let ext = file.originalname.split(".").pop();
