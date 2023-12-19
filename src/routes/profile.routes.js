@@ -2,25 +2,34 @@ const router = require("express").Router();
 const authCheck = require("../middleware/auth.middleware");
 const uploader = require("../middleware/uploader.middleware");
 const profileCtrl = require("../controllers/profile.controller");
-const fs = require("fs")
-// const uploadPath = (req, res, next) => {
-//   req.uploadPath = "./public/profile/";
-//   next();
-// };
+
+const fs = require("fs");
+const path = require("path");
+
 const uploadPath = (req, res, next) => {
-  const path = "./public/profile/";
-  if (!fs.existsSync(path)) {
-    fs.mkdirSync(path, { recursive: true });
+  const publicPath = path.join(__dirname, "../public/");
+  const profilePath = path.join(publicPath, "profile/");
+
+  // Check if the 'public' directory exists, create it if not
+  if (!fs.existsSync(publicPath)) {
+    fs.mkdirSync(publicPath);
   }
-  req.uploadPath = path;
+
+  // Check if the 'profile' directory exists, create it if not
+  if (!fs.existsSync(profilePath)) {
+    fs.mkdirSync(profilePath);
+  }
+
+  req.uploadPath = profilePath;
   next();
 };
+
 router
   .route("/")
   .get(authCheck, profileCtrl.listAllProfile)
   .post(
     authCheck,
-    // uploadPath,
+    uploadPath,
     uploader.single("image"),
     profileCtrl.createProfile
   );

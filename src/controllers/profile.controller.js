@@ -228,34 +228,41 @@ class ProfileController {
     try {
       const id = req.user?.id;
       const user = await UserModel.findById(id).populate("profile");
-
       if (!user.profile) {
         throw { status: 400, msg: "User does not have a profile." };
       }
-      if (!req.file) {
-        throw { status: 400, msg: "Please provide the Profile Image" };
-      }
 
+      let cloud;
       const profile = user.profile;
-      const cloud = await cloudinary.uploader.upload(req.file.path);
 
-      profile.image = cloud.secure_url;
-      await profile.save();
+      if (req.file?.path) {
+        try {
+          cloud = await cloudinary.v2.uploader.upload(req.file?.path);
+          console.log("cloud is", cloud);
+          profile.image = cloud.secure_url;
+          await profile?.save();
 
-      const updatedUser = await UserModel.findById(id).populate("profile");
+          const updatedUser = await UserModel.findById(id).populate("profile");
 
-      fs.unlink(req.file.path, (err) => {
-        if (err) {
-          console.error(err);
+          fs.unlink(req.file.path, (err) => {
+            if (err) {
+              console.error(err);
+            }
+          });
+
+          res.json({
+            result: updatedUser,
+            msg: "Profile Updated",
+            status: true,
+            meta: null,
+          });
+        } catch (error) {
+          console.error(error);
+          next(error);
         }
-      });
-
-      res.json({
-        result: updatedUser,
-        msg: "Profile Updated",
-        status: true,
-        meta: null,
-      });
+      } else {
+        next({ status: 400, msg: "Please provide the Profile Image" });
+      }
     } catch (exception) {
       next(exception);
     }
