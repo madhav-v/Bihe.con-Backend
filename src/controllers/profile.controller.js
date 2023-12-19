@@ -21,6 +21,7 @@ class ProfileController {
         meta: null,
       });
     } catch (exception) {
+      console.log("profile exp");
       next(exception);
     }
   };
@@ -281,7 +282,7 @@ class ProfileController {
       profile.hobbies = data.hobbies;
       await profile?.save();
       const updatedUser = await UserModel.findById(id).populate("profile");
-
+      
       res.json({
         result: updatedUser,
         msg: "Profile Updated",
