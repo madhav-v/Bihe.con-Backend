@@ -18,7 +18,7 @@ class ChatController {
 
       isChat = await UserModel.populate(isChat, {
         path: "latestMessage.sender",
-        select: "name pic email",
+        select: "name email",
       });
       if (isChat.length > 0) {
         res.json({
@@ -57,7 +57,7 @@ class ChatController {
         .then(async (results) => {
           results = await UserModel.populate(results, {
             path: "latestMessage.sender",
-            select: "name pic email",
+            select: "name email",
           });
           res.json({
             result: results,

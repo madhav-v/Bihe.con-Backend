@@ -19,11 +19,12 @@ class MessageController {
       };
       try {
         let message = await MessageModel.create(newMessage);
-        message = await message.populate("sender", "name pic");
+        message = await message.populate("sender", "name");
         message = await message.populate("chat");
+        message = await message.populate("receiver");
         message = await UserModel.populate(message, {
           path: "chat.users",
-          select: "name pic email",
+          select: "name email",
         });
         await ChatModel.findByIdAndUpdate(req.body.chatId, {
           latestMessage: message,
@@ -45,7 +46,8 @@ class MessageController {
       const message = await MessageModel.find({
         chat: req.params.chatId,
       })
-        .populate("sender", "name pic email")
+        .populate("sender", "name email")
+        .populate("receiver")
         .populate("chat");
 
       res.json({
