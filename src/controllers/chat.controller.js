@@ -1,4 +1,5 @@
 const ChatModel = require("../model/chat.model");
+const ChatRequestModel = require("../model/chatRequest.model");
 const UserModel = require("../model/user.model");
 class ChatController {
   accessChat = async (req, res, next) => {
@@ -28,11 +29,12 @@ class ChatController {
         });
       } else {
         let chatData = {
-          chatNamea: "sender",
+          chatName: "sender",
           users: [req.user._id, userId],
         };
         try {
           const createdChat = await ChatModel.create(chatData);
+
           const FullChat = await ChatModel.findOne({
             _id: createdChat._id,
           }).populate("users", "-password");
@@ -65,6 +67,93 @@ class ChatController {
             msg: "Chat Fetched",
           });
         });
+    } catch (exception) {
+      next(exception);
+    }
+  };
+
+  sendChatRequest = async (req, res, next) => {
+    try {
+      const { userId } = req.body;
+      if (!userId) {
+        throw { status: 400, msg: "User Id is required" };
+      }
+      const existingRequest = await ChatRequestModel.findOne({
+        sender: req.user._id,
+        receiver: userId,
+        status: "pending",
+      });
+      if (existingRequest) {
+        res.json({
+          status: false,
+          result: null,
+          msg: "Request already sent",
+        });
+      } else {
+        const newRequest = {
+          sender: req.user._id,
+          receiver: userId,
+        };
+        const request = await ChatRequestModel.create(newRequest);
+        res.json({
+          status: true,
+          result: request,
+          msg: "Request sent",
+        });
+      }
+    } catch (exception) {
+      next(exception);
+    }
+  };
+
+  acceptChatRequest = async (req, res, next) => {
+    try {
+      const { requestId } = req.params;
+      const request = await ChatRequestModel.findById(requestId);
+      if (!request) {
+        throw { status: 404, msg: "Request not found" };
+      }
+      if (request.receiver.toString() !== req.user._id.toString()) {
+        throw {
+          status: 403,
+          msg: "You are not authorized to accept this request",
+        };
+      }
+
+      request.status = "accepted";
+      await request.save();
+      const chatData = {
+        chatName: "Custom Chat Name",
+        users: [request.sender, request.receiver],
+      };
+      const createdChat = await ChatModel.create(chatData);
+      if (!createdChat) {
+        throw { status: 500, msg: "Error creating chat" };
+      }
+      const fullChat = await ChatModel.findOne({
+        _id: createdChat._id,
+      }).populate("users", "-password");
+      res.json({
+        status: true,
+        result: fullChat,
+        msg: "Chat Created",
+      });
+    } catch (exception) {
+      next(exception);
+    }
+  };
+
+  getConnectionRequests = async (req, res, next) => {
+    try {
+      const requests = await ChatRequestModel.find({
+        receiver: req.user._id,
+        status: "pending",
+      }).populate("sender", "name email");
+      res.json({
+        status: true,
+        result: requests,
+        msg: "Connection Requests",
+      });
     } catch (exception) {
       next(exception);
     }

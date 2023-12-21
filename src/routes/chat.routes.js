@@ -7,4 +7,11 @@ router
   .post(authCheck, chatCtrl.accessChat)
   .get(authCheck, chatCtrl.fetchChat);
 
+router
+  .route("/connection-requests")
+  .get(authCheck, chatCtrl.getConnectionRequests);
+
+router.route("/send-request").post(authCheck, chatCtrl.sendChatRequest);
+router.route("/accept-request/:id").put(authCheck, chatCtrl.acceptChatRequest);
+
 module.exports = router;

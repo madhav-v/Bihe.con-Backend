@@ -19,7 +19,7 @@ const ChatSchema = mongoose.Schema(
   },
   {
     timestamps: true,
-    autoIndex: true,
+    autoIndex: false,
   }
 );
 

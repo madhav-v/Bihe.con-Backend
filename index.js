@@ -3,11 +3,13 @@ const express = require("express");
 const app = express();
 const routes = require("./src/routes");
 const cors = require("cors");
+const bodyParser = require("body-parser");
 const dotenv = require("dotenv");
 dotenv.config();
 require("./src/config/mongoose.config");
 
 app.use(express.json());
+app.use(bodyParser.json());
 app.use(
   express.urlencoded({
     extended: false,
