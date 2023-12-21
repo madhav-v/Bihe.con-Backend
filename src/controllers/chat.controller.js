@@ -108,17 +108,13 @@ class ChatController {
 
   acceptChatRequest = async (req, res, next) => {
     try {
-      const { requestId } = req.params;
-      const request = await ChatRequestModel.findById(requestId);
+      const { id } = req.params;
+
+      const request = await ChatRequestModel.findById(id);
       if (!request) {
         throw { status: 404, msg: "Request not found" };
       }
-      if (request.receiver.toString() !== req.user._id.toString()) {
-        throw {
-          status: 403,
-          msg: "You are not authorized to accept this request",
-        };
-      }
+      console.log(request);
 
       request.status = "accepted";
       await request.save();
@@ -126,10 +122,12 @@ class ChatController {
         chatName: "Custom Chat Name",
         users: [request.sender, request.receiver],
       };
+      console.log(chatData);
       const createdChat = await ChatModel.create(chatData);
       if (!createdChat) {
         throw { status: 500, msg: "Error creating chat" };
       }
+      console.log("Created Chat", createdChat);
       const fullChat = await ChatModel.findOne({
         _id: createdChat._id,
       }).populate("users", "-password");
