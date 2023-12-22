@@ -216,7 +216,7 @@ class ProfileController {
 
       res.json({
         result: updatedUser,
-        msg: "First Edit",
+        msg: "Third Edit",
         status: true,
         meta: null,
       });
@@ -282,7 +282,7 @@ class ProfileController {
       profile.hobbies = data.hobbies;
       await profile?.save();
       const updatedUser = await UserModel.findById(id).populate("profile");
-      
+
       res.json({
         result: updatedUser,
         msg: "Profile Updated",

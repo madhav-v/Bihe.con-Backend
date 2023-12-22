@@ -114,27 +114,18 @@ class ChatController {
       if (!request) {
         throw { status: 404, msg: "Request not found" };
       }
-      console.log(request);
+      if (request.status === "accepted") {
+        throw { status: 404, msg: "Request already accepted" };
+      }
 
+      // Update the status of the request to "accepted"
       request.status = "accepted";
       await request.save();
-      const chatData = {
-        chatName: "Custom Chat Name",
-        users: [request.sender, request.receiver],
-      };
-      console.log(chatData);
-      const createdChat = await ChatModel.create(chatData);
-      if (!createdChat) {
-        throw { status: 500, msg: "Error creating chat" };
-      }
-      console.log("Created Chat", createdChat);
-      const fullChat = await ChatModel.findOne({
-        _id: createdChat._id,
-      }).populate("users", "-password");
+
       res.json({
         status: true,
-        result: fullChat,
-        msg: "Chat Created",
+        result: request,
+        msg: "Chat Request Accepted",
       });
     } catch (exception) {
       next(exception);
@@ -143,16 +134,24 @@ class ChatController {
 
   getConnectionRequests = async (req, res, next) => {
     try {
+      console.log(req.user._id);
       const requests = await ChatRequestModel.find({
         receiver: req.user._id,
         status: "pending",
-      }).populate("sender", "name email");
+      }).populate({
+        path: "sender",
+        populate: {
+          path: "profile",
+        },
+      });
+
       res.json({
         status: true,
         result: requests,
         msg: "Connection Requests",
       });
     } catch (exception) {
+      console.error("Error fetching connection requests:", exception);
       next(exception);
     }
   };
