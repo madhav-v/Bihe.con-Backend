@@ -110,12 +110,17 @@ class ChatController {
     try {
       const { id } = req.params;
 
-      const request = await ChatRequestModel.findById(id);
+      const request = await ChatRequestModel.findById(id).populate("sender");
       if (!request) {
         throw { status: 404, msg: "Request not found" };
       }
       if (request.status === "accepted") {
-        throw { status: 404, msg: "Request already accepted" };
+        res.json({
+          status: false,
+          result: null,
+          msg: "Request already accepted",
+        });
+        return;
       }
 
       // Update the status of the request to "accepted"
