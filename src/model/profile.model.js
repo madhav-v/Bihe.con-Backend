@@ -55,7 +55,7 @@ const ProfileSchema = new mongoose.Schema(
     },
     gotra: {
       type: String,
-      required: true,
+      // required: true,
     },
     familyValues: {
       type: String,
