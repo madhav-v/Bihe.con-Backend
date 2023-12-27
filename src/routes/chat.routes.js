@@ -13,5 +13,7 @@ router
 
 router.route("/send-request").post(authCheck, chatCtrl.sendChatRequest);
 router.route("/accept-request/:id").put(authCheck, chatCtrl.acceptChatRequest);
+router.put("/reject-chat-request/:id",authCheck, chatCtrl.rejectChatRequest);
+
 
 module.exports = router;

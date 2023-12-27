@@ -6,6 +6,7 @@ const mailSvc = require("../services/mailing.service");
 const helpers = require("../utilities/helpers");
 const UserModel = require("../model/user.model");
 const ProfileModel = require("../model/profile.model");
+const ChatModel = require("../model/chat.model");
 
 class AuthController {
   register = async (req, res, next) => {
@@ -160,6 +161,42 @@ class AuthController {
   getUserWithProfile = async (req, res, next) => {
     try {
       const userId = req.user._id;
+      const userProfile = await UserModel.findById(userId).populate("profile");
+
+      if (!userProfile) {
+        return res.status(404).json({
+          status: 404,
+          msg: "User not found",
+        });
+      }
+
+      res.json({
+        status: 200,
+        msg: "User and profile data",
+        result: userProfile,
+      });
+    } catch (exception) {
+      next(exception);
+    }
+  };
+  getUserProfileById = async (req, res, next) => {
+    try {
+      const chatId = req.params.id;
+
+      // Assuming that the chat model has a field named 'users' that contains user IDs
+      const chat = await ChatModel.findById(chatId);
+
+      if (!chat) {
+        return res.status(404).json({
+          status: 404,
+          msg: "Chat not found",
+        });
+      }
+
+      // Extract the user ID from the chat model
+      const userId = chat.users[1]; // Adjust the index as needed based on your data structure
+
+      // Fetch the user details and populate the 'profile' field
       const userProfile = await UserModel.findById(userId).populate("profile");
 
       if (!userProfile) {

@@ -52,21 +52,24 @@ class ChatController {
   };
   fetchChat = async (req, res, next) => {
     try {
-      ChatModel.find({ users: { $elemMatch: { $eq: req.user._id } } })
-        .populate("users", "-password")
+      const results = await ChatModel.find({
+        users: { $elemMatch: { $eq: req.user._id } },
+      })
+        .populate({
+          path: "users",
+          select: "-password",
+          populate: {
+            path: "profile",
+          },
+        })
         .populate("latestMessage")
-        .sort({ updateAt: -1 })
-        .then(async (results) => {
-          results = await UserModel.populate(results, {
-            path: "latestMessage.sender",
-            select: "name email",
-          });
-          res.json({
-            result: results,
-            status: true,
-            msg: "Chat Fetched",
-          });
-        });
+        .sort({ updateAt: -1 });
+
+      res.json({
+        result: results,
+        status: true,
+        msg: "Chat Fetched",
+      });
     } catch (exception) {
       next(exception);
     }
@@ -122,8 +125,6 @@ class ChatController {
         });
         return;
       }
-
-      // Update the status of the request to "accepted"
       request.status = "accepted";
       await request.save();
 
@@ -131,6 +132,34 @@ class ChatController {
         status: true,
         result: request,
         msg: "Chat Request Accepted",
+      });
+    } catch (exception) {
+      next(exception);
+    }
+  };
+  rejectChatRequest = async (req, res, next) => {
+    try {
+      const { id } = req.params;
+
+      const request = await ChatRequestModel.findById(id).populate("sender");
+      if (!request) {
+        throw { status: 404, msg: "Request not found" };
+      }
+      if (request.status === "rejected") {
+        res.json({
+          status: false,
+          result: null,
+          msg: "Request already rejected",
+        });
+        return;
+      }
+      request.status = "rejected";
+      await request.save();
+
+      res.json({
+        status: true,
+        result: request,
+        msg: "Chat Request Rejected",
       });
     } catch (exception) {
       next(exception);
