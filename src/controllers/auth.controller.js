@@ -182,23 +182,28 @@ class AuthController {
   getUserProfileById = async (req, res, next) => {
     try {
       const chatId = req.params.id;
-
-      // Assuming that the chat model has a field named 'users' that contains user IDs
       const chat = await ChatModel.findById(chatId);
-
       if (!chat) {
         return res.status(404).json({
           status: 404,
           msg: "Chat not found",
         });
       }
+      const loggedInUserId = req.user._id;
+      const otherUserId = chat.users.find(
+        (userId) => String(userId) !== String(loggedInUserId)
+      );
+      if (!otherUserId) {
+        return res.status(404).json({
+          status: 404,
+          msg: "Other user not found in the chat",
+        });
+      }
 
-      // Extract the user ID from the chat model
-      const userId = chat.users[1]; // Adjust the index as needed based on your data structure
-
-      // Fetch the user details and populate the 'profile' field
-      const userProfile = await UserModel.findById(userId).populate("profile");
-
+      const userProfile = await UserModel.findById(otherUserId).populate(
+        "profile"
+      );
+      // const userProfile = await UserModel.findById(userId).populate("profile");
       if (!userProfile) {
         return res.status(404).json({
           status: 404,
