@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-
 const ProfileSchema = new mongoose.Schema(
   {
     // Personal Details
@@ -77,9 +76,7 @@ const ProfileSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-
     // User Preferences
-
     preferredAge: {
       type: String,
       required: true,
@@ -116,7 +113,6 @@ const ProfileSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-
     ageWeight: {
       type: Number,
       default: 0,
@@ -188,7 +184,5 @@ const ProfileSchema = new mongoose.Schema(
     },
   }
 );
-
 const ProfileModel = mongoose.model("Profile", ProfileSchema);
-
 module.exports = ProfileModel;
