@@ -98,97 +98,109 @@ class PreferencesController {
       if (!user.profile) {
         throw { status: 400, msg: "User does not have a profile." };
       }
-      const profile = user.profile;
 
+      const userProfile = user.profile;
       const matchingProfiles = await ProfileModel.find({
-        sex: profile.sex.toLowerCase() === "man" ? "woman" : "man",
+        sex: userProfile.sex.toLowerCase() === "man" ? "woman" : "man",
       });
 
-      // Calculate the weighted scores for each matching profile
-      const sortedMatches = matchingProfiles.map((matchProfile) => {
-        const weightedScore = this.calculateWeightedScore(
-          profile,
-          matchProfile
+      function calculateWeightedScore(userProfile, matchProfile) {
+        let weightedScore = 0;
+        weightedScore +=
+          userProfile.ageWeight *
+          calculateScoreForAge(userProfile, matchProfile);
+        weightedScore +=
+          userProfile.heightWeight *
+          calculateScoreForHeight(userProfile, matchProfile);
+        weightedScore +=
+          userProfile.religionWeight *
+          calculateScoreForReligion(userProfile, matchProfile);
+        weightedScore +=
+          userProfile.casteWeight *
+          calculateScoreForCaste(userProfile, matchProfile);
+        weightedScore +=
+          userProfile.annualIncomeWeight *
+          calculateScoreForIncome(userProfile, matchProfile);
+        weightedScore +=
+          userProfile.marital_statusWeight *
+          calculateScoreForMaritalStatus(userProfile, matchProfile);
+        weightedScore +=
+          userProfile.motherTongueWeight *
+          calculateScoreForMotherTongue(userProfile, matchProfile);
+        weightedScore +=
+          userProfile.education_degreeWeight *
+          calculateScoreForEducation(userProfile, matchProfile);
+        return weightedScore;
+      }
+
+      function calculateScoreForAge(userProfile, matchProfile) {
+        const ageDifference = Math.abs(
+          parseInt(userProfile.dateOfBirth) - parseInt(matchProfile.dateOfBirth)
         );
-        return { profile: matchProfile, weightedScore };
-      });
+        const maxAgeDifference = 10;
+        const ageScore = 1 - Math.min(1, ageDifference / maxAgeDifference);
+        console.log("age score", ageScore);
+        return ageScore;
+      }
 
-      // Sort profiles based on weighted scores
-      sortedMatches.sort((a, b) => b.weightedScore - a.weightedScore);
+      function calculateScoreForHeight(userProfile, matchProfile) {
+        const heightDifference = Math.abs(
+          parseInt(userProfile.height) - parseInt(matchProfile.height)
+        );
+        const maxHeightDifference = 10;
+        const heightScore =
+          1 - Math.min(1, heightDifference / maxHeightDifference);
+        console.log("height score", heightScore);
+        return heightScore;
+      }
 
-      const userIds = sortedMatches.map((match) => match.profile.user);
+      function calculateScoreForReligion(userProfile, matchProfile) {
+        return userProfile.religion === matchProfile.religion ? 1 : 0;
+      }
 
-      res.json({
-        user: userIds,
-        result: sortedMatches.map((match) => match.profile),
-        msg: "Preferred Matches based on Weighted Score",
-        status: true,
-        meta: null,
-      });
+      function calculateScoreForCaste(userProfile, matchProfile) {
+        return userProfile.caste === matchProfile.caste ? 1 : 0;
+      }
+
+      function calculateScoreForIncome(userProfile, matchProfile) {
+        const userIncome = parseInt(userProfile.income);
+        const matchIncome = parseInt(matchProfile.income);
+        const incomeDifference = Math.abs(userIncome - matchIncome);
+        const maxIncomeDifference = 50000;
+        const incomeScore =
+          1 - Math.min(1, incomeDifference / maxIncomeDifference);
+        console.log("income score", incomeScore);
+        return incomeScore;
+      }
+      function calculateScoreForMaritalStatus(userProfile, matchProfile) {
+        return userProfile.marital_status === matchProfile.marital_status
+          ? 1
+          : 0;
+      }
+
+      function calculateScoreForMotherTongue(userProfile, matchProfile) {
+        return userProfile.motherTongue === matchProfile.motherTongue ? 1 : 0;
+      }
+
+      function calculateScoreForEducation(userProfile, matchProfile) {
+        return userProfile.highestEducation === matchProfile.highestEducation
+          ? 1
+          : 0;
+      }
+      const compatibleMatches = matchingProfiles
+        .map((matchProfile) => ({
+          profile: matchProfile,
+          score: calculateWeightedScore(userProfile, matchProfile),
+        }))
+        .sort((a, b) => b.score - a.score);
+
+      const N = 10;
+      const topMatches = compatibleMatches.slice(0, N);
+      res.json({ topMatches });
     } catch (exception) {
       next(exception);
     }
   };
-
-  // Function to calculate weighted score
-  calculateWeightedScore(userProfile, matchProfile) {
-    // Replace the placeholder code with your actual logic for calculating scores
-    const ageScore = this.calculateAgeScore(userProfile, matchProfile);
-    const educationScore = this.calculateEducationScore(
-      userProfile,
-      matchProfile
-    );
-
-    // Adjust weights according to your requirements
-    const weightedScore =
-      (userProfile.ageWeight * ageScore +
-        userProfile.educational_degreeWeight * educationScore) /
-      (userProfile.ageWeight + userProfile.educational_degreeWeight);
-    console.log("wt", weightedScore);
-    return weightedScore;
-  }
-
-  // Helper function for age score calculation
-  calculateAgeScore(userProfile, matchProfile) {
-    // Replace the placeholder code with your actual logic for calculating age score
-    // Example: Calculate the absolute difference in ages and normalize it between 0 and 1
-    const ageDifference = Math.abs(userProfile.age - matchProfile.age);
-    const normalizedAgeDifference =
-      ageDifference / (userProfile.maxAgeDifference || 1);
-
-    // Adjust weights according to your requirements
-    return 1 - normalizedAgeDifference;
-  }
-
-  // Helper function for education score calculation
-  calculateEducationScore(userProfile, matchProfile) {
-    // Replace the placeholder code with your actual logic for calculating education score
-    // Example: Compare education levels and assign scores accordingly
-
-    // Make sure both profiles have educationLevel property
-    const userEducationLevel = userProfile.educationLevel?.toLowerCase();
-    const matchEducationLevel = matchProfile.educationLevel?.toLowerCase();
-
-    // Check if both education levels are defined before proceeding
-    if (userEducationLevel && matchEducationLevel) {
-      // Assign scores based on education levels
-      const educationScores = {
-        highschool: 0.2,
-        college: 0.5,
-        university: 1,
-      };
-
-      // Adjust weights according to your requirements
-      return (
-        (educationScores[matchEducationLevel] || 0) *
-        userProfile.educationLevelWeight
-      );
-    } else {
-      // Handle the case where either user or match profile doesn't have educationLevel
-      // You can return a default value, throw an error, or handle it as needed
-      return 0;
-    }
-  }
 }
 
 const preferenceCtrl = new PreferencesController();
