@@ -12,6 +12,7 @@ class UserService {
       throw { status: 400, msg: "Password Required" };
     }
   };
+
   registerUser = async (data) => {
     try {
       let user = new UserModel(data);
@@ -20,6 +21,7 @@ class UserService {
       throw exception;
     }
   };
+
   getUserByEmail = async (email) => {
     try {
       let user = await UserModel.findOne({
@@ -34,6 +36,7 @@ class UserService {
       throw exception;
     }
   };
+
   getUserById = async (id) => {
     try {
       let userDetail = await UserModel.findById(id);
@@ -42,6 +45,7 @@ class UserService {
       throw exception;
     }
   };
+
   updateUser = async (data, id) => {
     try {
       let userDetail = await UserModel.findByIdAndUpdate(id, { $set: data });
@@ -50,6 +54,7 @@ class UserService {
       throw exception;
     }
   };
+
   deleteUser = async (id) => {
     try {
       let userDetail = await UserModel.findByIdAndDelete(id);

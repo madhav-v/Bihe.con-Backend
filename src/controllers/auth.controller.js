@@ -66,7 +66,6 @@ class AuthController {
   };
   forgetPassword = async (req, res, next) => {
     try {
-      console.log("Received forgetPassword request");
       const { email } = req.body;
 
       if (!email) {

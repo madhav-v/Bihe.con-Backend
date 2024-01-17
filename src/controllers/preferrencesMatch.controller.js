@@ -1,7 +1,7 @@
 const ProfileModel = require("../model/profile.model");
 const UserModel = require("../model/user.model");
 const profileSvc = require("../services/profile.service");
-// const { normalize } = require("lodash");
+const helpers = require("../utilities/helpers");
 
 class PreferencesController {
   findMatchesByEducation = async (req, res, next) => {
@@ -53,7 +53,6 @@ class PreferencesController {
       res.json({
         user: userIds.map((user) => user._id),
         result: matchingProfiles,
-        // Send an array of user IDs
         msg: "Preferred Occupation Matches",
         status: true,
         meta: null,
@@ -92,83 +91,6 @@ class PreferencesController {
     }
   };
 
-  // findMatchesByWeightedScore = async (req, res, next) => {
-  //   // Assuming you have already defined normalize, calculateWeightedScore, and calculateTotalScore functions
-
-  //   // Add logging for debugging
-  //   try {
-  //     const id = req.user?.id;
-  //     const user = await UserModel.findById(id).populate("profile");
-
-  //     if (!user.profile) {
-  //       throw { status: 400, msg: "User does not have a profile." };
-  //     }
-
-  //     const userProfile = user.profile;
-
-  //     // Fetch the profiles of the opposite sex
-  //     const matchingProfiles = await ProfileModel.find({
-  //       sex: userProfile.sex.toLowerCase() === "man" ? "woman" : "man",
-  //     });
-
-  //     // Assuming 'userProfile' and 'matchingProfiles' are available
-
-  //     // Define criteria and their weights
-  //     const criteria = [
-  //       {
-  //         field: "age",
-  //         weight: userProfile.ageWeight,
-  //         preference: userProfile.preferredAge,
-  //       },
-  //       {
-  //         field: "height",
-  //         weight: userProfile.heightWeight,
-  //         preference: userProfile.preferredHeight,
-  //       },
-  //       {
-  //         field: "religion",
-  //         weight: userProfile.religionWeight,
-  //         preference: userProfile.preferredReligion,
-  //       },
-  //       // Add other criteria...
-  //     ];
-  //     function calculateTotalScore(weightedScores) {
-  //       return weightedScores.reduce((sum, score) => sum + score, 0);
-  //     }
-  //     function calculateWeightedScore(normalizedScore, weight) {
-  //       return normalizedScore * weight;
-  //     }
-  //     function normalize(value, min, max) {
-  //       return (value - min) / (max - min);
-  //     }
-  //     // Calculate normalized scores for all criteria
-  //     const normalizedScores = matchingProfiles.map((profile) => {
-  //       const profileScores = criteria.map((criterion) => {
-  //         const userPreference = criterion.preference;
-  //         const userValue = userProfile[criterion.field];
-  //         const matchedValue = profile[criterion.field];
-  //         const normalizedScore = userValue === matchedValue ? 1 : 0;
-  //         return normalize(normalizedScore, 0, 1) * criterion.weight;
-  //       });
-
-  //       // Calculate total score for each profile
-  //       const totalScore = calculateTotalScore(profileScores);
-
-  //       return { profile, totalScore };
-  //     });
-
-  //     // Sort matching profiles by total score in descending order
-  //     const sortedProfiles = normalizedScores.sort(
-  //       (a, b) => b.totalScore - a.totalScore
-  //     );
-
-  //     // Now 'sortedProfiles' contains matching profiles sorted by their total score.
-  //     res.json(sortedProfiles);
-  //   } catch (exception) {
-  //     next(exception);
-  //   }
-  // };
-
   findMatchesByWeightedScore = async (req, res, next) => {
     try {
       const id = req.user?.id;
@@ -181,6 +103,13 @@ class PreferencesController {
 
       const matchingProfiles = await ProfileModel.find({
         sex: userProfile.sex.toLowerCase() === "man" ? "woman" : "man",
+        // age: {
+        //   $gte: helpers.calculateProfileAge(userProfile.preferredAge.split("-")[1]),
+        //   $lte: helpers.calculateProfileAge(userProfile.preferredAge.split("-")[0]),
+        // },
+        // height: {
+        //   $lte: helpers.calculateProfileHeight(userProfile.preferredHeight),
+        // },
       });
 
       let weights = {
@@ -228,23 +157,29 @@ class PreferencesController {
         const profileScores = Object.keys(updatedWeights).map((criterion) => {
           const userValue = userProfile[criterion];
           const profileValue = profile[criterion];
-          const score = userValue === profileValue ? 1 : 0;
-          const normalizedScore = normalize(score, 0, 1);
+          let score;
+
+          if (criterion === "age") {
+            const userAge = helpers.calculateProfileAge(userValue);
+            const profileAge = helpers.calculateProfileAge(profileValue);
+            score = userAge === profileAge ? 1 : 0;
+          } else if (criterion === "height") {
+            const userHeight = helpers.calculateProfileHeight(userValue);
+            const profileHeight = helpers.calculateProfileHeight(profileValue);
+            score = userHeight === profileHeight ? 1 : 0;
+          } else {
+            score = userValue === profileValue ? 1 : 0;
+          }
+
+          const normalizedScore = helpers.normalize(score, 0, 1);
+          console.log("normailized", normalizedScore);
           return normalizedScore * updatedWeights[criterion];
         });
 
-        const totalScore = calculateTotalScore(profileScores);
+        const totalScore = helpers.calculateTotalScore(profileScores);
 
         return { profile, totalScore };
       });
-
-      function calculateTotalScore(weightedScores) {
-        return weightedScores.reduce((sum, score) => sum + score, 0);
-      }
-
-      function normalize(value, min, max) {
-        return (value - min) / (max - min);
-      }
 
       const sortedProfiles = normalizedScores.sort(
         (a, b) => b.totalScore - a.totalScore
