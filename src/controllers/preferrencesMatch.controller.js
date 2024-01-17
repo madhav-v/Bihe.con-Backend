@@ -178,10 +178,11 @@ class PreferencesController {
         throw { status: 400, msg: "User does not have a profile." };
       }
       const userProfile = user.profile;
-      console.log(userProfile);
+
       const matchingProfiles = await ProfileModel.find({
         sex: userProfile.sex.toLowerCase() === "man" ? "woman" : "man",
       });
+
       let weights = {
         age: userProfile.ageWeight,
         height: userProfile.heightWeight,
@@ -192,16 +193,18 @@ class PreferencesController {
         income: userProfile.annualIncomeWeight,
         marital_status: userProfile.marital_statusWeight,
       };
+
       const predefinedWeights = {
-        age: 0.1,
-        height: 0.1,
-        religion: 0.1,
-        caste: 0.1,
-        education: 0.1,
-        motherTongue: 0.1,
-        income: 0.1,
-        marital_status: 0.1,
+        age: 0.2,
+        height: 0.3,
+        religion: 0.25,
+        caste: 0.25,
+        education: 0.4,
+        motherTongue: 0.2,
+        income: 0.3,
+        marital_status: 0.4,
       };
+
       let updatedWeights = {
         age: weights.age ? weights.age : predefinedWeights.age,
         height: weights.height ? weights.height : predefinedWeights.height,
@@ -220,6 +223,7 @@ class PreferencesController {
           ? weights.marital_status
           : predefinedWeights.marital_status,
       };
+
       const normalizedScores = matchingProfiles.map((profile) => {
         const profileScores = Object.keys(updatedWeights).map((criterion) => {
           const userValue = userProfile[criterion];
@@ -228,23 +232,25 @@ class PreferencesController {
           const normalizedScore = normalize(score, 0, 1);
           return normalizedScore * updatedWeights[criterion];
         });
+
         const totalScore = calculateTotalScore(profileScores);
 
         return { profile, totalScore };
       });
+
       function calculateTotalScore(weightedScores) {
         return weightedScores.reduce((sum, score) => sum + score, 0);
       }
-      function calculateWeightedScore(normalizedScore, weight) {
-        return normalizedScore * weight;
-      }
+
       function normalize(value, min, max) {
         return (value - min) / (max - min);
       }
+
       const sortedProfiles = normalizedScores.sort(
         (a, b) => b.totalScore - a.totalScore
       );
-      const profileResults = sortedProfiles.map(({ profile }) => ({ profile }));
+
+      const profileResults = sortedProfiles.map(({ profile }) => profile);
 
       res.json({
         result: profileResults,
