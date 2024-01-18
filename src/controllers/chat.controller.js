@@ -81,22 +81,27 @@ class ChatController {
       if (!userId) {
         throw { status: 400, msg: "User Id is required" };
       }
+
+      const acceptedStatuses = ["pending", "rejected", "accepted"];
+
       const existingRequest = await ChatRequestModel.findOne({
         sender: req.user._id,
         receiver: userId,
-        status: "pending",
+        status: { $in: acceptedStatuses },
       });
+
       if (existingRequest) {
         res.json({
           status: false,
           result: null,
-          msg: "Request already sent",
+          msg: "Request already sent or accepted",
         });
       } else {
         const newRequest = {
           sender: req.user._id,
           receiver: userId,
         };
+
         const request = await ChatRequestModel.create(newRequest);
         res.json({
           status: true,
