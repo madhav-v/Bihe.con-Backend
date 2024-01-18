@@ -111,6 +111,9 @@ class PreferencesController {
         //   $lte: helpers.calculateProfileHeight(userProfile.preferredHeight),
         // },
       });
+      const userIds = await UserModel.find({
+        profile: { $in: matchingProfiles.map((profile) => profile._id) },
+      }).select("_id");
 
       let weights = {
         age: userProfile.ageWeight,
@@ -172,7 +175,6 @@ class PreferencesController {
           }
 
           const normalizedScore = helpers.normalize(score, 0, 1);
-          console.log("normailized", normalizedScore);
           return normalizedScore * updatedWeights[criterion];
         });
 
@@ -189,6 +191,7 @@ class PreferencesController {
 
       res.json({
         result: profileResults,
+        user: userIds.map((user) => user._id),
         msg: "Algorithm Matches",
         status: true,
         meta: null,

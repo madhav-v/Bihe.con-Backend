@@ -117,7 +117,11 @@ class ChatController {
       if (!request) {
         throw { status: 404, msg: "Request not found" };
       }
-      if (request.status === "accepted") {
+      if (
+        request.status === "accepted" ||
+        request.status === "pending" ||
+        request.status === "rejected"
+      ) {
         res.json({
           status: false,
           result: null,
