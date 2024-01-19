@@ -10,10 +10,9 @@ router
 router
   .route("/connection-requests")
   .get(authCheck, chatCtrl.getConnectionRequests);
-
+router.route("/sent-requests").get(authCheck, chatCtrl.getSentChatRequests);
 router.route("/send-request").post(authCheck, chatCtrl.sendChatRequest);
 router.route("/accept-request/:id").put(authCheck, chatCtrl.acceptChatRequest);
-router.put("/reject-chat-request/:id",authCheck, chatCtrl.rejectChatRequest);
-
+router.put("/reject-chat-request/:id", authCheck, chatCtrl.rejectChatRequest);
 
 module.exports = router;

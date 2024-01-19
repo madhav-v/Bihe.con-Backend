@@ -177,7 +177,7 @@ class ChatController {
 
   getConnectionRequests = async (req, res, next) => {
     try {
-      console.log(req.user._id);
+      // console.log(req.user._id);
       const requests = await ChatRequestModel.find({
         receiver: req.user._id,
         status: "pending",
@@ -195,6 +195,28 @@ class ChatController {
       });
     } catch (exception) {
       console.error("Error fetching connection requests:", exception);
+      next(exception);
+    }
+  };
+  getSentChatRequests = async (req, res, next) => {
+    try {
+      const sentRequests = await ChatRequestModel.find({
+        sender: req.user._id,
+        status: { $in: ["pending", "rejected", "accepted"] },
+      }).populate({
+        path: "receiver",
+        populate: {
+          path: "profile",
+        },
+      });
+
+      res.json({
+        status: true,
+        result: sentRequests,
+        msg: "Sent Chat Requests",
+      });
+    } catch (exception) {
+      console.error("Error fetching sent chat requests:", exception);
       next(exception);
     }
   };
