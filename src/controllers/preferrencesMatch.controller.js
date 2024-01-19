@@ -116,23 +116,23 @@ class PreferencesController {
       }).select("_id");
 
       let weights = {
-        age: userProfile.ageWeight,
-        height: userProfile.heightWeight,
+        age: userProfile.ageWeight, //0.5
+        height: userProfile.heightWeight, //0.2
         religion: userProfile.religionWeight,
         caste: userProfile.casteWeight,
-        education: userProfile.education_degreeWeight,
-        motherTongue: userProfile.motherTongueWeight,
+        education: userProfile.education_degreeWeight, //0
+        motherTongue: userProfile.motherTongueWeight, //0
         income: userProfile.annualIncomeWeight,
         marital_status: userProfile.marital_statusWeight,
       };
 
       const predefinedWeights = {
-        age: 0.2,
-        height: 0.3,
-        religion: 0.25,
-        caste: 0.25,
-        education: 0.4,
-        motherTongue: 0.2,
+        age: 0.3,
+        height: 0.2,
+        religion: 0.3,
+        caste: 0.3,
+        education: 0.25,
+        motherTongue: 0.25,
         income: 0.3,
         marital_status: 0.4,
       };
@@ -161,7 +161,6 @@ class PreferencesController {
           const userValue = userProfile[criterion];
           const profileValue = profile[criterion];
           let score;
-
           if (criterion === "age") {
             const userAge = helpers.calculateProfileAge(userValue);
             const profileAge = helpers.calculateProfileAge(profileValue);
@@ -186,8 +185,8 @@ class PreferencesController {
       const sortedProfiles = normalizedScores.sort(
         (a, b) => b.totalScore - a.totalScore
       );
-
-      const profileResults = sortedProfiles.map(({ profile }) => profile);
+      const topMatches = sortedProfiles.slice(0, 6);
+      const profileResults = topMatches.map(({ profile }) => profile);
 
       res.json({
         result: profileResults,
