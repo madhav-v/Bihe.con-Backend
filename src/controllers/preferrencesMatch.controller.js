@@ -103,11 +103,11 @@ class PreferencesController {
 
       const matchingProfiles = await ProfileModel.find({
         sex: userProfile.sex.toLowerCase() === "man" ? "woman" : "man",
-        // age: {
-        //   $gte: helpers.calculateProfileAge(userProfile.preferredAge.split("-")[1]),
-        //   $lte: helpers.calculateProfileAge(userProfile.preferredAge.split("-")[0]),
-        // },
-        // height: {
+        preferredAge: {
+          $lte: userProfile.preferredAge.split("-")[1],
+          $gte: userProfile.preferredAge.split("-")[0],
+        },
+        // preferredHeight: {
         //   $lte: helpers.calculateProfileHeight(userProfile.preferredHeight),
         // },
       });
@@ -116,12 +116,12 @@ class PreferencesController {
       }).select("_id");
 
       let weights = {
-        age: userProfile.ageWeight, //0.5
-        height: userProfile.heightWeight, //0.2
+        age: userProfile.ageWeight,
+        height: userProfile.heightWeight,
         religion: userProfile.religionWeight,
         caste: userProfile.casteWeight,
-        education: userProfile.education_degreeWeight, //0
-        motherTongue: userProfile.motherTongueWeight, //0
+        education: userProfile.education_degreeWeight,
+        motherTongue: userProfile.motherTongueWeight,
         income: userProfile.annualIncomeWeight,
         marital_status: userProfile.marital_statusWeight,
       };

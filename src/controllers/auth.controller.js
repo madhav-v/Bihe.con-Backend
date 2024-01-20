@@ -50,6 +50,7 @@ class AuthController {
         next({ status: 400, msg: "Invalid Credentials" });
         return;
       }
+      
       let token = jwt.sign({ id: userDetail._id }, process.env.JWT_SECRET, {
         expiresIn: 86400,
       });
