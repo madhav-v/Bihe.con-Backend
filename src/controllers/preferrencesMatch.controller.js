@@ -103,10 +103,10 @@ class PreferencesController {
 
       const matchingProfiles = await ProfileModel.find({
         sex: userProfile.sex.toLowerCase() === "man" ? "woman" : "man",
-        preferredAge: {
-          $lte: userProfile.preferredAge.split("-")[1],
-          $gte: userProfile.preferredAge.split("-")[0],
-        },
+        // preferredAge: {
+        //   $lte: userProfile.preferredAge.split("-")[1],
+        //   $gte: userProfile.preferredAge.split("-")[0],
+        // },
         // preferredHeight: {
         //   $lte: helpers.calculateProfileHeight(userProfile.preferredHeight),
         // },
@@ -186,11 +186,12 @@ class PreferencesController {
         (a, b) => b.totalScore - a.totalScore
       );
       const topMatches = sortedProfiles.slice(0, 6);
+      const finalScore = topMatches.map(({ totalScore }) => totalScore);
       const profileResults = topMatches.map(({ profile }) => profile);
-
       res.json({
         result: profileResults,
         user: userIds.map((user) => user._id),
+        score: finalScore,
         msg: "Algorithm Matches",
         status: true,
         meta: null,

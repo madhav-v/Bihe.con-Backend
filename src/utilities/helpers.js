@@ -18,15 +18,13 @@ const helpers = {
   },
 
   calculateProfileHeight: (height) => {
-    // Check if the height parameter is null or not a string
     if (!height || typeof height !== "string") {
-      return null; // Or return a default value as per your requirement
+      return null; 
     }
 
-    // Extract the numerical value from the height string
     const match = height.match(/\d+/);
     if (!match) {
-      return null; // Or return a default value as per your requirement
+      return null; 
     }
 
     const heightInCm = parseInt(match[0], 10);
