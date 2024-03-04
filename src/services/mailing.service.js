@@ -26,7 +26,6 @@ class MailService {
       };
 
       let response = await this.connection.sendMail(msg);
-      console.log(response);
       return true;
     } catch (exception) {
       console.log("Email Exception", exception);
