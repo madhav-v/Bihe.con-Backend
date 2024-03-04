@@ -13,16 +13,17 @@ class FeedBackController {
           msg: "User not found",
         });
       }
-      const { feedback } = req.body;
+      const { feedback, rating } = req.body;
       const newFeedback = new FeedBackModel({
         user: userId,
         feedback,
+        rating,
       });
       let result = await newFeedback.save();
       if (result) {
         let email = "madhavdhungana36@gmail.com";
         let mailMsg = `Dear Sir,<br/>
-        ${userProfile.name} has send this feedback.<br/>
+        ${userProfile.name} has rated <b>${rating} stars </b> and send this feedback.<br/>
         <b>Feedback:</b> ${feedback}<br/>
         `;
         mailSvc.sendMail(email, "FeedBack Received", mailMsg);

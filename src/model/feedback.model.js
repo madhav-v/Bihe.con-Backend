@@ -5,6 +5,9 @@ const FeedBackSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
+  rating:{
+    type: Number,
+  },
   feedback: {
     type: String,
     required: true,
