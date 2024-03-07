@@ -5,6 +5,7 @@ const chatRoutes = require("./chat.routes");
 const messageRoutes = require("./message.routes");
 const preferrenceRoutes = require("./preferrences.routes");
 const feedbackRoutes = require("./feedback.routes");
+const reportRoutes = require("./report.routes");
 
 app.use("/auth", authRoutes);
 app.use("/profile", profileRoutes);
@@ -12,5 +13,6 @@ app.use("/chat", chatRoutes);
 app.use("/message", messageRoutes);
 app.use("/preferrence", preferrenceRoutes);
 app.use("/feedback", feedbackRoutes);
+app.use("/report", reportRoutes);
 
 module.exports = app;
