@@ -82,7 +82,7 @@ class ChatController {
         throw { status: 400, msg: "User Id is required" };
       }
 
-      const acceptedStatuses = ["pending", "rejected", "accepted"];
+      const acceptedStatuses = ["pending", "rejected"];
 
       const existingRequest = await ChatRequestModel.findOne({
         sender: req.user._id,
