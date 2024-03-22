@@ -28,6 +28,15 @@ class ReportController {
       next(exception);
     }
   };
+
+  getAllReports = async (req, res, next) => {
+    try {
+      let reports = await ReportModel.find().populate("sender receiver");
+      res.status(200).json({ reports });
+    } catch (exception) {
+      next(exception);
+    }
+  };
 }
 
 const reportCtrl = new ReportController();

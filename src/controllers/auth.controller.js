@@ -50,7 +50,7 @@ class AuthController {
         next({ status: 400, msg: "Invalid Credentials" });
         return;
       }
-      
+
       let token = jwt.sign({ id: userDetail._id }, process.env.JWT_SECRET, {
         expiresIn: 86400,
       });
@@ -110,7 +110,7 @@ class AuthController {
       if (password.length < 6) {
         throw {
           status: 400,
-          msg: "Password should be at least 8 characters long",
+          msg: "Password should be at least 6 characters long",
         };
       }
       const user = await userSvc.getUserByEmail(email);
@@ -166,7 +166,7 @@ class AuthController {
       if (!userProfile) {
         return res.status(404).json({
           status: 404,
-          msg: "User not found",
+          msg: "User Profile not found",
         });
       }
 
@@ -216,6 +216,15 @@ class AuthController {
         msg: "User and profile data",
         result: userProfile,
       });
+    } catch (exception) {
+      next(exception);
+    }
+  };
+
+  getAllUsers = async (req, res, next) => {
+    try {
+      let users = await UserModel.find().populate("profile");
+      res.status(200).json({ users });
     } catch (exception) {
       next(exception);
     }

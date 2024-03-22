@@ -10,5 +10,6 @@ app.delete("/delete-user/:id", authCtrl.deleteUser);
 app.get("/me", authCheck, authCtrl.getLoggedInUser);
 app.get("/me/profile", authCheck, authCtrl.getUserWithProfile);
 app.get("/user/:id", authCheck, authCtrl.getUserProfileById);
+app.get("/users", authCtrl.getAllUsers);
 
 module.exports = app;

@@ -36,6 +36,18 @@ class FeedBackController {
       next(exception);
     }
   };
+
+  getFeedback = async (req, res, next) => {
+    try {
+      let feedbacks = await FeedBackModel.find().populate("user");
+      res.json({
+        status: 200,
+        feedbacks,
+      });
+    } catch (exception) {
+      next(exception);
+    }
+  };
 }
 
 const feedbackCtrl = new FeedBackController();

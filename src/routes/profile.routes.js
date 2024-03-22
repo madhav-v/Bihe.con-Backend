@@ -8,12 +8,10 @@ const uploadPath = (req, res, next) => {
   next();
 };
 
-router.route("/").get(authCheck, profileCtrl.listAllProfile).post(
-  authCheck,
-  uploadPath,
-  uploader,
-  profileCtrl.createProfile
-);
+router
+  .route("/")
+  .get(authCheck, profileCtrl.listAllProfile)
+  .post(authCheck, uploadPath, uploader, profileCtrl.createProfile);
 
 router
   .route("/:id")
